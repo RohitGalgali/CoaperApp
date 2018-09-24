@@ -103,7 +103,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(934, 634);
+            this.ClientSize = new System.Drawing.Size(910, 519);
             this.Controls.Add(this.DiscoverButton);
             this.Controls.Add(this.PutButton);
             this.Controls.Add(this.GetButton);
@@ -111,8 +111,10 @@
             this.Controls.Add(this.PayloadDataTextBox);
             this.Controls.Add(this.AddressBarLabel);
             this.Controls.Add(this.AddressBarTextBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Name = "CoaperFinder";
-            this.Text = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Coaper Resource Finder";
             this.ResumeLayout(false);
             this.PerformLayout();
 
