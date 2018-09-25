@@ -4,6 +4,7 @@ using CoAP;
 using PeterO.Cbor;
 using LinkFormatParser;
 using System.Net;
+using System.Text;
 
 namespace CoaperApp
 {
@@ -12,13 +13,20 @@ namespace CoaperApp
         public CoaperFinder()
         {
             InitializeComponent();
+
+            PortTextBox.Text = PortNumber.ToString();
+
+            UriTextBox.Text = URIValue;
         }
 
         public CBORObject CborModel { get; set; }
 
         public IPAddress UserIPAddress { get; set; }
 
-        public string URIValue { get; set; }
+        private string _UriValue = "/.well-known/core";
+        public string URIValue { get { return _UriValue.TrimEnd('/'); } set { _UriValue = value; } } 
+
+        public int PortNumber { get; set; } = 5683;
 
         private void DiscoverButton_Click(object sender, EventArgs e)
         {
@@ -34,10 +42,8 @@ namespace CoaperApp
                 {
                     UserIPAddress = addr;
                     Request req = new Request(Method.GET, true);
-                    req.URI = new Uri("coap://" + addr.ToString() + ":5683/.well-known/core");
+                    req.URI = new Uri("coap://" + addr.ToString() + ":" + PortNumber + URIValue);
                     req.Respond += DiscoveryResponseRecieved;
-                    req.ContentType = 0;
-                    req.ContentFormat = 0;
                     req.Send();
                 }
                 else
@@ -67,27 +73,39 @@ namespace CoaperApp
 
         private void GetButton_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(AddressBarTextBox.Text) && UserIPAddress != null)
+            if (string.IsNullOrEmpty(AddressBarTextBox.Text))
             {
                 MessageBox.Show("Enter Address");
                 return;
             }
             else
             {
-                //IPAddress addr = ParseIPAddress(AddressBarTextBox.Text);
-                //if (addr != null)
-                //{
-                   // UserIPAddress = addr;
+                IPAddress addr = ParseIPAddress(AddressBarTextBox.Text);
+                if (addr != null)
+                {
+                    UserIPAddress = addr;
                     Request req = new Request(Method.GET, true);
-                    req.URI = new Uri("coap://" + AddressBarTextBox.Text.TrimEnd('/'));
+                    req.URI = new Uri("coap://" + addr.ToString() + ":" + PortNumber.ToString() + PadUri(URIValue));
                     req.Respond += ResponseRecieved;
-                   
                     req.Send();
-                //}
-                //else
-                //{
-                //    MessageBox.Show("Invalid Address");
-                //}
+                }
+                else
+                {
+                    MessageBox.Show("Invalid Address");
+                }
+            }
+        }
+
+        private string PadUri(string uRIValue)
+        {
+            if (uRIValue.StartsWith("/"))
+            {
+                return uRIValue;
+            }
+            else
+            {
+                string val = uRIValue.PadLeft(uRIValue.Length + 1, '/');
+                return val;
             }
         }
 
@@ -110,12 +128,25 @@ namespace CoaperApp
             {
                 BeginInvoke(new Action(() => PayloadDataTextBox.Text = e.Response.Payload.ToString()));
             }
+
+            else if(e.Response.ContentType == 40)
+            {
+                LinkCollection collection = new LinkCollection(e.Response.PayloadString);
+                StringBuilder stringBuilder = new StringBuilder();
+                foreach (var item in collection)
+                {
+                    stringBuilder.AppendLine(item.Uri);
+                    
+                }
+                BeginInvoke(new Action(() => PayloadDataTextBox.Text = stringBuilder.ToString()));
+            }
+
         }
 
         private void CoapTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
             URIValue = e.Node.FullPath;
-            AddressBarTextBox.Text = UserIPAddress + ":5683/" + URIValue;
+            UriTextBox.Text = URIValue;
         }
         private static IPAddress ParseIPAddress(string address)
         {

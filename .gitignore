@@ -5,5 +5,6 @@ CoaperApp/obj/
 .vs/CoaperApp/v15/.suo
 .vs/CoaperApp/v15/Server/sqlite3/db.lock
 .vs/CoaperApp/v15/Server/sqlite3/storage.ide
-.vs/CoaperApp/v15/Server/sqlite3/storage.ide-shm
+.vs/
+CoaperApp/v15/Server/sqlite3/storage.ide-shm
 .vs/CoaperApp/v15/Server/sqlite3/storage.ide-wal
